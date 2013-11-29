@@ -38,6 +38,9 @@ public class BBBProxyImpl implements BBBProxy{
 	protected final static String APICALL_END 				= "end";
 	protected final static String APICALL_GETMEETINGINFO 	= "getMeetingInfo";
 	protected final static String APICALL_GETMEETINGS 		= "getMeetings";
+	protected final static String APICALL_GETRECORDINGS 	= "getRecordings";
+	protected final static String APICALL_PUBLISHRECORDINGS = "publishRecordings";
+	protected final static String APICALL_DELETERECORDINGS 	= "deleteRecordings";
 
 	// API Response Codes
 	protected final static String APIRESPONSE_SUCCESS = "SUCCESS";

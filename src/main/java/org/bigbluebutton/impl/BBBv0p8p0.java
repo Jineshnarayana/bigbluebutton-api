@@ -21,10 +21,6 @@ package org.bigbluebutton.impl;
 
 public class BBBv0p8p0 extends BBBProxyImpl {
 
-	protected final static String APICALL_GETRECORDINGS 	= "getRecordings";
-	protected final static String APICALL_PUBLISHRECORDINGS = "publishRecordings";
-	protected final static String APICALL_DELETERECORDINGS 	= "deleteRecordings";
-
 	public BBBv0p8p0(){
 		super();
 	}
