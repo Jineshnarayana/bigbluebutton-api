@@ -24,30 +24,33 @@ public class BBBv0p8p0 extends BBBProxyImpl {
 	public BBBv0p8p0(){
 		super();
 	}
+
+    public BBBv0p8p0(String endpoint, String secret){
+        super(endpoint, secret);
+    }
 	
 	public String getGetRecordingsURL(String meetingID) {
 	    
-	    String queryString = "meetingID=" + meetingID;
-	    queryString += getCheckSumParameterForQuery(APICALL_GETRECORDINGS, queryString);
+	    String qs = "meetingID=" + meetingID;
+	    qs += getCheckSumParameterForQuery(APICALL_GETRECORDINGS, qs);
 	    
-	    return this.endpoint + API_SERVERPATH + APICALL_GETRECORDINGS + "?" + queryString;
+	    return this.endpoint + API_SERVERPATH + APICALL_GETRECORDINGS + "?" + qs;
 	}
 
-	public String getPublishRecordingsURL(String recordID, String publish) {
+	public String getPublishRecordingsURL(String recordID, boolean publish) {
 	    
-	    String endpoint = "recordID=" + recordID;
-	    endpoint += "&publish=" + publish;
-	    endpoint += getCheckSumParameterForQuery(APICALL_PUBLISHRECORDINGS, endpoint);
+	    String qs = "recordID=" + recordID;
+	    qs += "&publish=" + Boolean.valueOf(publish);
+	    qs += getCheckSumParameterForQuery(APICALL_PUBLISHRECORDINGS, qs);
 	    
-	    return this.endpoint + API_SERVERPATH + APICALL_PUBLISHRECORDINGS + "?" + endpoint;
+	    return this.endpoint + API_SERVERPATH + APICALL_PUBLISHRECORDINGS + "?" + qs;
 	}
 
 	public String getDeleteRecordingsURL(String recordID) {
 	    
-	    String endpoint = "recordID=" + recordID;
-	    endpoint += getCheckSumParameterForQuery(APICALL_DELETERECORDINGS, endpoint);
+	    String qs = "recordID=" + recordID;
+	    qs += getCheckSumParameterForQuery(APICALL_DELETERECORDINGS, qs);
 	    
-	    return this.endpoint + API_SERVERPATH + APICALL_DELETERECORDINGS + "?" + endpoint;
+	    return this.endpoint + API_SERVERPATH + APICALL_DELETERECORDINGS + "?" + qs;
 	}
-
 }

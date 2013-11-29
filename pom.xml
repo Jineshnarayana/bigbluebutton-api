@@ -4,7 +4,7 @@
   <groupId>org.bigbluebutton</groupId>
   <artifactId>bigbluebutton-api</artifactId>
   <packaging>jar</packaging>
-  <version>1.0</version>
+  <version>1.0.1</version>
   <name>BigBlueButton-API</name>
   <description>BigBlueButton Library for java integrations.</description>
 	

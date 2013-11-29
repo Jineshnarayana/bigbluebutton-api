@@ -19,8 +19,34 @@
 */ 
 package org.bigbluebutton.impl;
 
+import org.bigbluebutton.api.BBBException;
+import org.bigbluebutton.api.BBBProxy;
 import org.bigbluebutton.api.BBBStore;
 
 public class BBBStoreImpl implements BBBStore {
 
+    private static final BBBStoreImpl INSTANCE = new BBBStoreImpl();
+
+    private BBBStoreImpl() {}
+
+    public static BBBStoreImpl getInstance() {
+        return INSTANCE;
+    }
+    
+    public BBBProxy createProxy(String endpoint, String secret) throws BBBException{
+        BBBProxy bbbProxy = null;
+        try {
+            String version = BBBProxyImpl.getVersion(endpoint, secret);
+            if( version.equals("0.80"))
+                bbbProxy = new BBBv0p8p0(endpoint, secret);
+            else if( version.equals("0.81"))
+                bbbProxy = new BBBv0p8p1(endpoint, secret);
+            else
+                bbbProxy = new BBBProxyImpl(endpoint, secret);
+
+        } catch ( Exception e ){
+            throw new BBBException(BBBException.MESSAGEKEY_INTERNALERROR, "The proxy could not be instantiated", e.getCause());
+        }
+        return bbbProxy;
+    }
 }

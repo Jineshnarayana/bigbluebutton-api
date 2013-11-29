@@ -19,10 +19,13 @@
 */ 
 package org.bigbluebutton.impl;
 
-public class BBBv0p8p1 extends BBBProxyImpl {
+public class BBBv0p8p1 extends BBBv0p8p0 {
 
 	public BBBv0p8p1(){
 		super();
 	}
 
+    public BBBv0p8p1(String endpoint, String secret){
+        super(endpoint, secret);
+    }
 }

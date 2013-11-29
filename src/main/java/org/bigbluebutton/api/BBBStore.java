@@ -21,4 +21,5 @@ package org.bigbluebutton.api;
 
 public interface BBBStore {
 
+    public BBBProxy createProxy(String endpoint, String secret) throws BBBException;
 }

@@ -21,36 +21,33 @@ package org.bigbluebutton.impl;
 
 import org.bigbluebutton.api.BBBProxy;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
 public class BBBProxyImpl implements BBBProxy{
-
-	// API Server Path
-	protected final static String API_SERVERPATH = "/api/";
-
-	// API Calls
-	protected final static String APICALL_CREATE 			= "create";
-	protected final static String APICALL_JOIN 				= "join";
-	protected final static String APICALL_ISMEETINGRUNNING 	= "isMeetingRunning";
-	protected final static String APICALL_END 				= "end";
-	protected final static String APICALL_GETMEETINGINFO 	= "getMeetingInfo";
-	protected final static String APICALL_GETMEETINGS 		= "getMeetings";
-	protected final static String APICALL_GETRECORDINGS 	= "getRecordings";
-	protected final static String APICALL_PUBLISHRECORDINGS = "publishRecordings";
-	protected final static String APICALL_DELETERECORDINGS 	= "deleteRecordings";
-
-	// API Response Codes
-	protected final static String APIRESPONSE_SUCCESS = "SUCCESS";
-	protected final static String APIRESPONSE_FAILED = "FAILED";
-
-	// API MesageKey Codes
-	protected final static String MESSAGEKEY_IDNOTUNIQUE = "idNotUnique";
-	protected final static String MESSAGEKEY_DUPLICATEWARNING = "duplicateWarning";
-
-	protected final static String PARAMETERENCODING = "UTF-8";
 
 	String endpoint;
 	String secret;
@@ -61,92 +58,232 @@ public class BBBProxyImpl implements BBBProxy{
 	}
 
 	BBBProxyImpl(String endpoint, String secret) {
+	    if( !endpoint.substring(endpoint.length()-1).equals("/") )
+	        endpoint += "/";
 	    this.endpoint = endpoint;
 	    this.secret = secret;
 	}
 
-	public void setUrl(String endpoint){
+	public void setEndpoint(String endpoint){
+        if( !endpoint.substring(endpoint.length()-1).equals("/") )
+            endpoint += "/";
 	    this.endpoint = endpoint;
 	}
 
-	public void setSalt(String secret){
+	public void setSecret(String secret){
 	    this.secret = secret;
 	}
+
+	public static String getVersion(String endpoint, String secret){
+	    String version;
+
+	    Map<String, Object> mapResponse = doAPICall(endpoint + API_SERVERPATH);
+	    System.out.println(mapResponse);
+	    version = "0.81";
+
+	    return version;
+	}
+	
+	////////////////////
+	/** Make an API call */
+    protected static Map<String, Object> doAPICall(String query) {
+        Map<String, Object> response = new HashMap<String, Object>();
+
+        StringBuilder urlStr = new StringBuilder(query);
+        try {
+            // open connection
+            //log.debug("doAPICall.call: " + query );
+            
+            URL url = new URL(urlStr.toString());
+            HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+            httpConnection.setUseCaches(false);
+            httpConnection.setDoOutput(true);
+            httpConnection.setRequestMethod("GET");
+            httpConnection.connect();
+
+            int responseCode = httpConnection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                // read response
+                InputStreamReader isr = null;
+                BufferedReader reader = null;
+                StringBuilder xml = new StringBuilder();
+                try {
+                    isr = new InputStreamReader(httpConnection.getInputStream(), "UTF-8");
+                    reader = new BufferedReader(isr);
+                    String line = reader.readLine();
+                    while (line != null) {
+                        if( !line.startsWith("<?xml version=\"1.0\"?>"))
+                            xml.append(line.trim());
+                        line = reader.readLine();
+                    }
+                } finally {
+                    if (reader != null)
+                        reader.close();
+                    if (isr != null)
+                        isr.close();
+                }
+                httpConnection.disconnect();
+
+                // parse response
+                //log.debug("doAPICall.responseXml: " + xml);
+                //Patch to fix the NaN error
+                String stringXml = xml.toString();
+                stringXml = stringXml.replaceAll(">.\\s+?<", "><");
+                
+                DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder docBuilder;
+                try {
+                    docBuilder = docBuilderFactory.newDocumentBuilder();
+                    Document dom = null;
+                    dom = docBuilder.parse(new InputSource( new StringReader(stringXml)));
+                    
+                    response = getNodesAsMap(dom, "response");
+                    //log.debug("doAPICall.responseMap: " + response);
+                    
+                    String returnCode = (String) response.get("returncode");
+                    if (BBBProxy.APIRESPONSE_FAILED.equals(returnCode)) {
+                        //log.debug("doAPICall." + (String) response.get("messageKey") + ": Message=" + (String) response.get("message"));
+                    }
+
+                } catch (ParserConfigurationException e) {
+                    //logger.error("Failed to initialise BaseProxy", e)
+                }
+
+            } else {
+                //log.debug("doAPICall.HTTPERROR: Message=" + "BBB server responded with HTTP status code " + responseCode);
+            }
+
+        } catch(IOException e) {
+            //log.debug("doAPICall.IOException: Message=" + e.getMessage());
+        } catch(SAXException e) {
+            //log.debug("doAPICall.SAXException: Message=" + e.getMessage());
+        } catch(IllegalArgumentException e) {
+            //log.debug("doAPICall.IllegalArgumentException: Message=" + e.getMessage());
+        } catch(Exception e) {
+            //log.debug("doAPICall.Exception: Message=" + e.getMessage());
+        }
+        return response;
+    }
+    
+    /** Get all nodes under the specified element tag name as a Java map */
+    protected static Map<String, Object> getNodesAsMap(Document dom, String elementTagName) {
+        Node firstNode = dom.getElementsByTagName(elementTagName).item(0);
+        return processNode(firstNode);
+    }
+
+    protected static Map<String, Object> processNode(Node _node) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        NodeList responseNodes = _node.getChildNodes();
+        for (int i = 0; i < responseNodes.getLength(); i++) {
+            Node node = responseNodes.item(i);
+            String nodeName = node.getNodeName().trim();
+            if (node.getChildNodes().getLength() == 1
+                    && ( node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.TEXT_NODE || node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.CDATA_SECTION_NODE) ) {
+                String nodeValue = node.getTextContent();
+                map.put(nodeName, nodeValue != null ? nodeValue.trim() : null);
+            
+            } else if (node.getChildNodes().getLength() == 0
+                    && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE
+                    && node.getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE) {
+                map.put(nodeName, "");
+            
+            } else if ( node.getChildNodes().getLength() >= 1
+                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.TEXT_NODE
+                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE ) {
+
+                List<Object> list = new ArrayList<Object>();
+                for (int c = 0; c < node.getChildNodes().getLength(); c++) {
+                    Node n = node.getChildNodes().item(c);
+                    list.add(processNode(n));
+                }
+                map.put(nodeName, list);
+            
+            } else {
+                map.put(nodeName, processNode(node));
+            }
+        }
+        return map;
+    }
+    /////////////
+	
+    public String getVersionURL(){
+        return this.endpoint + API_SERVERPATH;
+    }
 
 	public String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, String dialNumber, String voiceBridge, String webVoice, String logoutURL, String maxParticipants, String record, String duration, String meta ) {
 
-	    String endpoint;
-	    endpoint = "name=" + getStringEncoded(name);
-	    endpoint += "&meetingID=" + meetingID;
-	    endpoint += "&moderatorPW=" + moderatorPW;
-	    endpoint += "&attendeePW=" + attendeePW;
-	    endpoint += "&welcome=" + getStringEncoded(welcome);
-	    endpoint += "&logoutURL=" + getStringEncoded(logoutURL);
-	    endpoint += "&maxParticipants=" + maxParticipants;
-	    endpoint += "&voiceBridge=" + voiceBridge;
-	    endpoint += "&dialNumber=" + dialNumber;
-	    endpoint += "&webVoice=" + webVoice;
-	    endpoint += "&record=" + record;
-	    endpoint += "&duration=" + duration;
-	    endpoint += "&" + meta;
+	    String qs;
+	    qs = "name=" + getStringEncoded(name);
+	    qs += "&meetingID=" + meetingID;
+	    qs += "&moderatorPW=" + moderatorPW;
+	    qs += "&attendeePW=" + attendeePW;
+	    qs += "&welcome=" + getStringEncoded(welcome);
+	    qs += "&logoutURL=" + getStringEncoded(logoutURL);
+	    qs += "&maxParticipants=" + maxParticipants;
+	    qs += "&voiceBridge=" + voiceBridge;
+	    qs += "&dialNumber=" + dialNumber;
+	    qs += "&webVoice=" + webVoice;
+	    qs += "&record=" + record;
+	    qs += "&duration=" + duration;
+	    qs += "&" + meta;
 
-	    endpoint += getCheckSumParameterForQuery(APICALL_CREATE, endpoint);
+	    qs += getCheckSumParameterForQuery(APICALL_CREATE, qs);
 	    
-	    return this.endpoint + API_SERVERPATH + APICALL_CREATE + "?" + endpoint;
+	    return this.endpoint + API_SERVERPATH + APICALL_CREATE + "?" + qs;
 	}
 
 	public String getJoinURL(String fullName, String meetingID, String password, String createTime, String userID) {
-	    String endpoint = getJoinURL(fullName, meetingID, password, createTime, userID, "" );
-	    return endpoint;
+	    String qs = getJoinURL(fullName, meetingID, password, createTime, userID, "" );
+	    return qs;
 	    
 	}
 
 	public String getJoinURL(String fullName, String meetingID, String password, String createTime, String userID, String webVoiceConf ) {
 
-	    String endpoint;
-	    endpoint = "fullName=" + getStringEncoded(fullName);
-	    endpoint += "&meetingID=" + meetingID;
-	    endpoint += "&password=" + password;
-	    endpoint += "".equals(createTime)? "": "&createTime=" + createTime;
-	    endpoint += "&userID=" + userID;
-	    endpoint += "&webVoiceConf=" + webVoiceConf;
+	    String qs;
+	    qs = "fullName=" + getStringEncoded(fullName);
+	    qs += "&meetingID=" + meetingID;
+	    qs += "&password=" + password;
+	    qs += "".equals(createTime)? "": "&createTime=" + createTime;
+	    qs += "&userID=" + userID;
+	    qs += "&webVoiceConf=" + webVoiceConf;
 
-	    endpoint += getCheckSumParameterForQuery(APICALL_JOIN, endpoint);
+	    qs += getCheckSumParameterForQuery(APICALL_JOIN, qs);
 	    
-	    return this.endpoint + API_SERVERPATH + APICALL_JOIN + "?" + endpoint;
+	    return this.endpoint + API_SERVERPATH + APICALL_JOIN + "?" + qs;
 	}
 
 	public String getIsMeetingRunningURL(String meetingID) {
 
-	    String endpoint = "meetingID=" + meetingID;
-	    endpoint += getCheckSumParameterForQuery(APICALL_ISMEETINGRUNNING, endpoint);
+	    String qs = "meetingID=" + meetingID;
+	    qs += getCheckSumParameterForQuery(APICALL_ISMEETINGRUNNING, qs);
 	    
-	    return this.endpoint + API_SERVERPATH + APICALL_ISMEETINGRUNNING + "?" + endpoint;
+	    return this.endpoint + API_SERVERPATH + APICALL_ISMEETINGRUNNING + "?" + qs;
 	}
 
 	public String getEndURL(String meetingID, String password) {
 	    
-	    String endpoint = "meetingID=" + meetingID;
-	    endpoint += "&password=" + password;
-	    endpoint += getCheckSumParameterForQuery(APICALL_END, endpoint);
+	    String qs = "meetingID=" + meetingID;
+	    qs += "&password=" + password;
+	    qs += getCheckSumParameterForQuery(APICALL_END, qs);
 	    
-	    return this.endpoint + API_SERVERPATH + APICALL_END + "?" + endpoint;
+	    return this.endpoint + API_SERVERPATH + APICALL_END + "?" + qs;
 	}
 
 	public String getGetMeetingInfoURL(String meetingID, String password) {
 	    
-	    String endpoint = "meetingID=" + meetingID;
-	    endpoint += "&password=" + password;
-	    endpoint += getCheckSumParameterForQuery(APICALL_GETMEETINGINFO, endpoint);
+	    String qs = "meetingID=" + meetingID;
+	    qs += "&password=" + password;
+	    qs += getCheckSumParameterForQuery(APICALL_GETMEETINGINFO, qs);
 	    
-	    return this.endpoint + API_SERVERPATH + APICALL_GETMEETINGINFO + "?" + endpoint;
+	    return this.endpoint + API_SERVERPATH + APICALL_GETMEETINGINFO + "?" + qs;
 	}
 
 	public String getGetMeetingsURL(String meetingID, String password) {
 	    
-	    String endpoint = getCheckSumParameterForQuery(APICALL_END, "");
+	    String qs = getCheckSumParameterForQuery(APICALL_END, "");
 	    
-	    return this.endpoint + API_SERVERPATH + APICALL_END + "?" + endpoint;
+	    return this.endpoint + API_SERVERPATH + APICALL_END + "?" + qs;
 	}
 
 	public String getStringEncoded(String string){
@@ -167,4 +304,15 @@ public class BBBProxyImpl implements BBBProxy{
 	        return "";
 	}
 
+    public String getGetRecordingsURL(String meetingID) {
+        return null;
+    }
+
+    public String getPublishRecordingsURL(String recordID, boolean publish) {
+        return null;
+    }
+
+    public String getDeleteRecordingsURL(String recordID) {
+        return null;
+    }
 }
