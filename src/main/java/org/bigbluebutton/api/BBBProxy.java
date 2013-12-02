@@ -50,12 +50,12 @@ public interface BBBProxy {
     public String getVersionURL();
     public String getCreateURL(Map<String, String> params);
     public String getJoinURL(Map<String, String> params);
-    public String getIsMeetingRunningURL(String meetingID);
-    public String getEndURL(String meetingID, String password);
-    public String getGetMeetingInfoURL(String meetingID, String password);
-    public String getGetMeetingsURL(String meetingID, String password);
-    public String getStringEncoded(String string);
-    public String getGetRecordingsURL(String meetingID);
-    public String getPublishRecordingsURL(String recordID, boolean publish);
-    public String getDeleteRecordingsURL(String recordID);
+    public String getIsMeetingRunningURL(Map<String, String> params);
+    public String getEndURL(Map<String, String> params);
+    public String getGetMeetingInfoURL(Map<String, String> params);
+    public String getGetMeetingsURL();
+    public String getStringEncoded(Map<String, String> params);
+    public String getGetRecordingsURL(Map<String, String> params);
+    public String getPublishRecordingsURL(Map<String, String> params);
+    public String getDeleteRecordingsURL(Map<String, String> params);
 }

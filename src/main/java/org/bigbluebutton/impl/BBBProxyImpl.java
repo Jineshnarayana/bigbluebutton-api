@@ -237,41 +237,42 @@ public class BBBProxyImpl implements BBBProxy{
         return this.endpoint + API_SERVERPATH + APICALL_JOIN + "?" + qs;
     }
     
-	public String getIsMeetingRunningURL(String meetingID) {
+	public String getIsMeetingRunningURL(Map<String, String> params) {
 	    String qs;
 
-	    qs = "meetingID=" + meetingID;
+        qs = "meetingID=" + params.get("meetingID");
 	    qs += getCheckSumParameterForQuery(APICALL_ISMEETINGRUNNING, qs);
 	    
 	    return this.endpoint + API_SERVERPATH + APICALL_ISMEETINGRUNNING + "?" + qs;
 	}
 
-	public String getEndURL(String meetingID, String password) {
+	public String getEndURL(Map<String, String> params) {
 	    String qs;
 
-	    qs = "meetingID=" + meetingID;
-	    qs += "&password=" + password;
+        qs = "meetingID=" + params.get("meetingID");
+        qs += "&password=" + params.get("password");
 	    qs += getCheckSumParameterForQuery(APICALL_END, qs);
 	    
 	    return this.endpoint + API_SERVERPATH + APICALL_END + "?" + qs;
 	}
 
-	public String getGetMeetingInfoURL(String meetingID, String password) {
+	public String getGetMeetingInfoURL(Map<String, String> params) {
 	    String qs;
 
-	    qs = "meetingID=" + meetingID;
-	    qs += "&password=" + password;
+        qs = "meetingID=" + params.get("meetingID");
+        qs += "&password=" + params.get("password");
 	    qs += getCheckSumParameterForQuery(APICALL_GETMEETINGINFO, qs);
 	    
 	    return this.endpoint + API_SERVERPATH + APICALL_GETMEETINGINFO + "?" + qs;
 	}
 
-	public String getGetMeetingsURL(String meetingID, String password) {
+	public String getGetMeetingsURL() {
 	    String qs;
 
-	    qs = getCheckSumParameterForQuery(APICALL_END, "");
+	    qs = "random=xyz";
+	    qs = getCheckSumParameterForQuery(APICALL_GETMEETINGS, qs);
 
-	    return this.endpoint + API_SERVERPATH + APICALL_END + "?" + qs;
+	    return this.endpoint + API_SERVERPATH + APICALL_GETMEETINGS + "?" + qs;
 	}
 
 	public String getStringEncoded(String string){
@@ -292,15 +293,15 @@ public class BBBProxyImpl implements BBBProxy{
 	        return "";
 	}
 
-    public String getGetRecordingsURL(String meetingID) {
+    public String getGetRecordingsURL(Map<String, String> params) {
         return null;
     }
 
-    public String getPublishRecordingsURL(String recordID, boolean publish) {
+    public String getPublishRecordingsURL(Map<String, String> params) {
         return null;
     }
 
-    public String getDeleteRecordingsURL(String recordID) {
+    public String getDeleteRecordingsURL(Map<String, String> params) {
         return null;
     }
 }
