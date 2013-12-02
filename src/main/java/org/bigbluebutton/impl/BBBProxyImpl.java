@@ -16,7 +16,7 @@
 	with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 
 	Author: Jesus Federico <jesus@blindsidenetworks.com>
-*/ 
+*/
 package org.bigbluebutton.impl;
 
 import org.bigbluebutton.api.BBBProxy;
@@ -28,12 +28,10 @@ import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -44,7 +42,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
 import org.apache.commons.codec.digest.DigestUtils;
 
 public class BBBProxyImpl implements BBBProxy{
@@ -83,7 +80,7 @@ public class BBBProxyImpl implements BBBProxy{
 
 	    return version;
 	}
-	
+
 	////////////////////
 	/** Make an API call */
     protected static Map<String, Object> doAPICall(String query) {
@@ -93,7 +90,7 @@ public class BBBProxyImpl implements BBBProxy{
         try {
             // open connection
             //log.debug("doAPICall.call: " + query );
-            
+
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setUseCaches(false);
@@ -164,7 +161,7 @@ public class BBBProxyImpl implements BBBProxy{
         }
         return response;
     }
-    
+
     /** Get all nodes under the specified element tag name as a Java map */
     protected static Map<String, Object> getNodesAsMap(Document dom, String elementTagName) {
         Node firstNode = dom.getElementsByTagName(elementTagName).item(0);
@@ -205,65 +202,54 @@ public class BBBProxyImpl implements BBBProxy{
         return map;
     }
     /////////////
-	
+
     public String getVersionURL(){
         return this.endpoint + API_SERVERPATH;
     }
 
-	public String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, String dialNumber, String voiceBridge, String webVoice, String logoutURL, String maxParticipants, String record, String duration, String meta ) {
+    public String getCreateURL(Map<String, String> params){
+        String qs;
 
-	    String qs;
-	    qs = "name=" + getStringEncoded(name);
-	    qs += "&meetingID=" + meetingID;
-	    qs += "&moderatorPW=" + moderatorPW;
-	    qs += "&attendeePW=" + attendeePW;
-	    qs += "&welcome=" + getStringEncoded(welcome);
-	    qs += "&logoutURL=" + getStringEncoded(logoutURL);
-	    qs += "&maxParticipants=" + maxParticipants;
-	    qs += "&voiceBridge=" + voiceBridge;
-	    qs += "&dialNumber=" + dialNumber;
-	    qs += "&webVoice=" + webVoice;
-	    qs += "&record=" + record;
-	    qs += "&duration=" + duration;
-	    qs += "&" + meta;
+        qs = "name=" + params.get("name");
+        qs += "&meetingID=" + params.get("meetingID");
+        qs += "&moderatorPW=" + params.get("moderatorPW");
+        qs += "&attendeePW=" + params.get("attendeePW");
+        qs += params.containsKey("welcome")? "&welcome=" + params.get("welcome"): "";
+        qs += params.containsKey("logoutURL")? "&logoutURL=" + params.get("logoutURL"): "";
+        qs += params.containsKey("voiceBridge")? "&voiceBridge=" + params.get("voiceBridge"): "";
+        qs += params.containsKey("dialNumber")? "&dialNumber=" + params.get("dialNumber"): "";
+        qs += params.containsKey("duration")? "&duration=" + params.get("duration"): "";
+        qs += getCheckSumParameterForQuery(APICALL_CREATE, qs);
+        
+        return this.endpoint + API_SERVERPATH + APICALL_CREATE + "?" + qs;
+    }
 
-	    qs += getCheckSumParameterForQuery(APICALL_CREATE, qs);
-	    
-	    return this.endpoint + API_SERVERPATH + APICALL_CREATE + "?" + qs;
-	}
+    public String getJoinURL(Map<String, String> params){
+        String qs;
 
-	public String getJoinURL(String fullName, String meetingID, String password, String createTime, String userID) {
-	    String qs = getJoinURL(fullName, meetingID, password, createTime, userID, "" );
-	    return qs;
-	    
-	}
-
-	public String getJoinURL(String fullName, String meetingID, String password, String createTime, String userID, String webVoiceConf ) {
-
-	    String qs;
-	    qs = "fullName=" + getStringEncoded(fullName);
-	    qs += "&meetingID=" + meetingID;
-	    qs += "&password=" + password;
-	    qs += "".equals(createTime)? "": "&createTime=" + createTime;
-	    qs += "&userID=" + userID;
-	    qs += "&webVoiceConf=" + webVoiceConf;
-
-	    qs += getCheckSumParameterForQuery(APICALL_JOIN, qs);
-	    
-	    return this.endpoint + API_SERVERPATH + APICALL_JOIN + "?" + qs;
-	}
-
+        qs = "fullName=" + params.get("fullName");
+        qs += "&meetingID=" + params.get("meetingID");
+        qs += "&password=" + params.get("password");
+        qs += params.containsKey("createTime")? "&createTime=" + params.get("createTime"): "";
+        qs += params.containsKey("userID")? "&userID=" + params.get("userID"): "";
+        qs += getCheckSumParameterForQuery(APICALL_JOIN, qs);
+        
+        return this.endpoint + API_SERVERPATH + APICALL_JOIN + "?" + qs;
+    }
+    
 	public String getIsMeetingRunningURL(String meetingID) {
+	    String qs;
 
-	    String qs = "meetingID=" + meetingID;
+	    qs = "meetingID=" + meetingID;
 	    qs += getCheckSumParameterForQuery(APICALL_ISMEETINGRUNNING, qs);
 	    
 	    return this.endpoint + API_SERVERPATH + APICALL_ISMEETINGRUNNING + "?" + qs;
 	}
 
 	public String getEndURL(String meetingID, String password) {
-	    
-	    String qs = "meetingID=" + meetingID;
+	    String qs;
+
+	    qs = "meetingID=" + meetingID;
 	    qs += "&password=" + password;
 	    qs += getCheckSumParameterForQuery(APICALL_END, qs);
 	    
@@ -271,8 +257,9 @@ public class BBBProxyImpl implements BBBProxy{
 	}
 
 	public String getGetMeetingInfoURL(String meetingID, String password) {
-	    
-	    String qs = "meetingID=" + meetingID;
+	    String qs;
+
+	    qs = "meetingID=" + meetingID;
 	    qs += "&password=" + password;
 	    qs += getCheckSumParameterForQuery(APICALL_GETMEETINGINFO, qs);
 	    
@@ -280,9 +267,10 @@ public class BBBProxyImpl implements BBBProxy{
 	}
 
 	public String getGetMeetingsURL(String meetingID, String password) {
-	    
-	    String qs = getCheckSumParameterForQuery(APICALL_END, "");
-	    
+	    String qs;
+
+	    qs = getCheckSumParameterForQuery(APICALL_END, "");
+
 	    return this.endpoint + API_SERVERPATH + APICALL_END + "?" + qs;
 	}
 

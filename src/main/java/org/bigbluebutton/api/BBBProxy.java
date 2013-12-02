@@ -16,8 +16,10 @@
 	with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 
 	Author: Jesus Federico <jesus@blindsidenetworks.com>
-*/ 
+*/
 package org.bigbluebutton.api;
+
+import java.util.Map;
 
 public interface BBBProxy {
 
@@ -46,9 +48,8 @@ public interface BBBProxy {
     public final static String PARAMETERENCODING = "UTF-8";
 
     public String getVersionURL();
-    public String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, String dialNumber, String voiceBridge, String webVoice, String logoutURL, String maxParticipants, String record, String duration, String meta );
-    public String getJoinURL(String fullName, String meetingID, String password, String createTime, String userID);
-    public String getJoinURL(String fullName, String meetingID, String password, String createTime, String userID, String webVoiceConf );
+    public String getCreateURL(Map<String, String> params);
+    public String getJoinURL(Map<String, String> params);
     public String getIsMeetingRunningURL(String meetingID);
     public String getEndURL(String meetingID, String password);
     public String getGetMeetingInfoURL(String meetingID, String password);
