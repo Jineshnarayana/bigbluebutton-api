@@ -25,23 +25,22 @@ import org.bigbluebutton.api.BBBCommand;
 import org.bigbluebutton.api.BBBException;
 import org.bigbluebutton.api.BBBProxy;
 
-public class BBBCreateCommand implements BBBCommand {
+public class BBBPublishRecordings implements BBBCommand {
 
     BBBProxy proxy;
     Map<String, String> params;
     
-    public BBBCreateCommand(BBBProxy proxy, Map<String, String> params){
+    public BBBPublishRecordings(BBBProxy proxy, Map<String, String> params){
         this.proxy = proxy;
         this.params = params;
     }
     
     @Override
     public void execute() throws BBBException {
-        String action = "Creating meeting";
+        String action = "Deleting recordings";
         System.out.println(action);
-        String createURL = proxy.getCreateURL(params);
-        System.out.println("Executing [" + createURL + "]");
-        BBBProxyImpl.doAPICall(createURL);
+        String deleteRecordngsURL = proxy.getDeleteRecordingsURL(params);
+        System.out.println("Executing [" + deleteRecordngsURL + "]");
+        BBBProxyImpl.doAPICall(deleteRecordngsURL);
     }
-
 }
