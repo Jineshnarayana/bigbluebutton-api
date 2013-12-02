@@ -54,7 +54,7 @@ public interface BBBProxy {
     public String getEndURL(Map<String, String> params);
     public String getGetMeetingInfoURL(Map<String, String> params);
     public String getGetMeetingsURL();
-    public String getStringEncoded(Map<String, String> params);
+    public String getStringEncoded(String string);
     public String getGetRecordingsURL(Map<String, String> params);
     public String getPublishRecordingsURL(Map<String, String> params);
     public String getDeleteRecordingsURL(Map<String, String> params);

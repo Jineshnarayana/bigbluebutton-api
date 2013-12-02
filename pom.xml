@@ -4,7 +4,7 @@
   <groupId>org.bigbluebutton</groupId>
   <artifactId>bigbluebutton-api</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <name>BigBlueButton-API</name>
   <description>BigBlueButton Library for java integrations.</description>
 	
@@ -23,7 +23,7 @@
       <roles>
         <role>Developer</role>
       </roles>
-      <timezone>-5</timezone>
+      <timezone>-4</timezone>
     </developer>
   </developers>
 
@@ -38,7 +38,6 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <version>0.11.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>commons-codec</groupId>
