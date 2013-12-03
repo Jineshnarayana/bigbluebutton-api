@@ -75,8 +75,11 @@ public class BBBProxyImpl implements BBBProxy{
 	    String version;
 
 	    Map<String, Object> mapResponse = doAPICall(endpoint + API_SERVERPATH);
+        System.out.println("**********************************************");
 	    System.out.println(mapResponse);
 	    version = "0.81";
+        System.out.println(version);
+        System.out.println("**********************************************");
 
 	    return version;
 	}
@@ -90,6 +93,7 @@ public class BBBProxyImpl implements BBBProxy{
         try {
             // open connection
             //log.debug("doAPICall.call: " + query );
+            System.out.println("doAPICall.call: " + query );
 
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
@@ -123,6 +127,7 @@ public class BBBProxyImpl implements BBBProxy{
 
                 // parse response
                 //log.debug("doAPICall.responseXml: " + xml);
+                System.out.println("doAPICall.responseXml: " + xml);
                 //Patch to fix the NaN error
                 String stringXml = xml.toString();
                 stringXml = stringXml.replaceAll(">.\\s+?<", "><");
@@ -136,28 +141,36 @@ public class BBBProxyImpl implements BBBProxy{
                     
                     response = getNodesAsMap(dom, "response");
                     //log.debug("doAPICall.responseMap: " + response);
+                    System.out.println("doAPICall.responseMap: " + response);
                     
                     String returnCode = (String) response.get("returncode");
                     if (BBBProxy.APIRESPONSE_FAILED.equals(returnCode)) {
                         //log.debug("doAPICall." + (String) response.get("messageKey") + ": Message=" + (String) response.get("message"));
+                        System.out.println("doAPICall." + (String) response.get("messageKey") + ": Message=" + (String) response.get("message"));
                     }
 
                 } catch (ParserConfigurationException e) {
                     //logger.error("Failed to initialise BaseProxy", e)
+                    System.out.println("Failed to initialise BaseProxy: " + e.getMessage());
                 }
 
             } else {
                 //log.debug("doAPICall.HTTPERROR: Message=" + "BBB server responded with HTTP status code " + responseCode);
+                System.out.println("doAPICall.HTTPERROR: Message=" + "BBB server responded with HTTP status code " + responseCode);
             }
 
         } catch(IOException e) {
             //log.debug("doAPICall.IOException: Message=" + e.getMessage());
+            System.out.println("doAPICall.IOException: Message=" + e.getMessage());
         } catch(SAXException e) {
             //log.debug("doAPICall.SAXException: Message=" + e.getMessage());
+            System.out.println("doAPICall.SAXException: Message=" + e.getMessage());
         } catch(IllegalArgumentException e) {
             //log.debug("doAPICall.IllegalArgumentException: Message=" + e.getMessage());
+            System.out.println("doAPICall.IllegalArgumentException: Message=" + e.getMessage());
         } catch(Exception e) {
             //log.debug("doAPICall.Exception: Message=" + e.getMessage());
+            System.out.println("doAPICall.Exception: Message=" + e.getMessage());
         }
         return response;
     }
