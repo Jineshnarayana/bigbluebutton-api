@@ -1,7 +1,7 @@
 /*
 	BigBlueButton - http://www.bigbluebutton.org
 
-	Copyright (c) 2008-2012 by respective authors (see below). All rights reserved.
+	Copyright (c) 2008-2013 by respective authors (see below). All rights reserved.
 
 	BigBlueButton is free software; you can redistribute it and/or modify it under the
 	terms of the GNU Lesser General Public License as published by the Free Software
@@ -17,7 +17,6 @@
 
 	Author: Jesus Federico <jesus@blindsidenetworks.com>
 */
-
 package org.bigbluebutton.api;
 
 public class BBBException extends Exception {
