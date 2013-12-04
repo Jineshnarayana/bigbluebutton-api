@@ -89,13 +89,18 @@ public class BBBProxyImpl implements BBBProxy{
         log.info("Executing getVersion");
 	    String version;
 
+        if( !endpoint.substring(endpoint.length()-1).equals("/") )
+            endpoint += "/";
+
 	    Map<String, Object> response = doAPICall(endpoint + API_SERVERPATH);
         String returnCode = (String) response.get("returncode");
+        log.debug("returnCode: " + returnCode);
+
         if (returnCode == null || !returnCode.equals(BBBProxy.APIRESPONSE_SUCCESS)) {
             log.debug(BBBException.MESSAGEKEY_UNREACHABLE + ": Unreachable server. BigBlueButton server version can not be verified.");
             throw new BBBException(BBBException.MESSAGEKEY_UNREACHABLE, "Unreachable server. BigBlueButton server version can not be verified.");
         } else {
-            version = (String) response.get("returncode");
+            version = (String) response.get("version");
             if( version == null || version == "" ){
                 log.debug(BBBException.MESSAGEKEY_INVALIDRESPONSE + ": Invalid response. Server version was not received.");
                 throw new BBBException(BBBException.MESSAGEKEY_INVALIDRESPONSE, "Invalid response. Server version was not received.");

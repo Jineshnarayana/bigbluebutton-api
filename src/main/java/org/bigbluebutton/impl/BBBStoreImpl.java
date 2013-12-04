@@ -23,7 +23,11 @@ import org.bigbluebutton.api.BBBException;
 import org.bigbluebutton.api.BBBProxy;
 import org.bigbluebutton.api.BBBStore;
 
+import org.apache.log4j.Logger;
+
 public class BBBStoreImpl implements BBBStore {
+
+    private static final Logger log = Logger.getLogger(BBBStoreImpl.class);
 
     private static final BBBStoreImpl INSTANCE = new BBBStoreImpl();
 
@@ -33,10 +37,12 @@ public class BBBStoreImpl implements BBBStore {
         return INSTANCE;
     }
 
-    public BBBProxy createProxy(String endpoint, String secret) throws BBBException{
+    public BBBProxy createProxy(String endpoint, String secret) throws BBBException {
+        log.info("Creating BBBProxy");
         BBBProxy bbbProxy = null;
         try {
             String version = BBBProxyImpl.getVersion(endpoint, secret);
+            log.debug("BigBluebutton server version: " + version);
             if( version.equals("0.80"))
                 bbbProxy = new BBBv0p8p0(endpoint, secret);
             else if( version.equals("0.81"))
