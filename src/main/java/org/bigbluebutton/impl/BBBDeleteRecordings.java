@@ -21,26 +21,35 @@ package org.bigbluebutton.impl;
 
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.bigbluebutton.api.BBBCommand;
 import org.bigbluebutton.api.BBBException;
 import org.bigbluebutton.api.BBBProxy;
 
 public class BBBDeleteRecordings implements BBBCommand {
 
-    BBBProxy proxy;
-    Map<String, String> params;
-    
+    private static final Logger log = Logger.getLogger(BBBDeleteRecordings.class);
+
+    private static final String ACTION = "Deleting recording";
+
     public BBBDeleteRecordings(BBBProxy proxy, Map<String, String> params){
         this.proxy = proxy;
         this.params = params;
     }
-    
+
+    private String getURL(){
+        String url = proxy.getDeleteRecordingsURL(params);
+        return url;
+    }
+
+    BBBProxy proxy;
+    Map<String, String> params;
+
     @Override
     public void execute() throws BBBException {
-        String action = "Ending meeting";
-        System.out.println(action);
-        String endMeetingURL = proxy.getEndURL(params);
-        System.out.println("Executing [" + endMeetingURL + "]");
-        BBBProxyImpl.doAPICall(endMeetingURL);
+        log.info(ACTION);
+        String url = getURL();
+        log.debug("Executing [" + url + "]");
+        BBBProxyImpl.doAPICall(url);
     }
 }

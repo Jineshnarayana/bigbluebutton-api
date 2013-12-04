@@ -47,6 +47,9 @@ public interface BBBProxy {
 
     public final static String PARAMETERENCODING = "UTF-8";
 
+    public final static String DEFAULT_ENDPOINT = "http://test-install.blindsidenetworks.com/bigbluebutton/";
+    public final static String DEFAULT_SECRET = "8cd8ef52e8e101574e400365b55e11a6";
+
     public String getVersionURL();
     public String getCreateURL(Map<String, String> params);
     public String getJoinURL(Map<String, String> params);

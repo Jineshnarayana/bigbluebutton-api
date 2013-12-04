@@ -4,7 +4,7 @@
   <groupId>org.bigbluebutton</groupId>
   <artifactId>bigbluebutton-api</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
   <name>BigBlueButton-API</name>
   <description>BigBlueButton Library for java integrations.</description>
 	
@@ -43,6 +43,11 @@
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
       <version>1.4</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.14</version>
     </dependency>
   </dependencies>
   
