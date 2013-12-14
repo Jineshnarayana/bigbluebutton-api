@@ -20,6 +20,7 @@
 package org.bigbluebutton.impl;
 
 import java.util.Map;
+import java.util.Random;
 
 public class BBBv0p8p1 extends BBBv0p8p0 {
 
@@ -41,7 +42,9 @@ public class BBBv0p8p1 extends BBBv0p8p0 {
         qs += params.containsKey("welcome")? "&welcome=" + params.get("welcome"): "";
         qs += params.containsKey("logoutURL")? "&logoutURL=" + params.get("logoutURL"): "";
         qs += params.containsKey("maxParticipants")? "&maxParticipants=" + params.get("maxParticipants"): "";
-        qs += params.containsKey("voiceBridge")? "&voiceBridge=" + params.get("voiceBridge"): "";
+        Integer voiceBridge = Integer.valueOf(params.containsKey("voiceBridge")? params.get("voiceBridge"): "0");
+        voiceBridge = ( voiceBridge == null || voiceBridge == 0 )? 70000 + new Random(System.currentTimeMillis()).nextInt(10000): voiceBridge;
+        qs += "&voiceBridge=" + voiceBridge.toString();
         qs += params.containsKey("dialNumber")? "&dialNumber=" + params.get("dialNumber"): "";
         qs += params.containsKey("webVoice")? "&webVoice=" + params.get("webVoice"): "";
         qs += params.containsKey("record")? "&record=" + params.get("record"): "";

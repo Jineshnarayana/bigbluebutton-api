@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -245,7 +246,9 @@ public class BBBProxyImpl implements BBBProxy{
         qs += "&attendeePW=" + params.get("attendeePW");
         qs += params.containsKey("welcome")? "&welcome=" + params.get("welcome"): "";
         qs += params.containsKey("logoutURL")? "&logoutURL=" + params.get("logoutURL"): "";
-        qs += params.containsKey("voiceBridge")? "&voiceBridge=" + params.get("voiceBridge"): "";
+        Integer voiceBridge = Integer.valueOf(params.containsKey("voiceBridge")? params.get("voiceBridge"): "0");
+        voiceBridge = ( voiceBridge == null || voiceBridge == 0 )? 70000 + new Random(System.currentTimeMillis()).nextInt(10000): voiceBridge;
+        qs += "&voiceBridge=" + voiceBridge.toString();
         qs += params.containsKey("dialNumber")? "&dialNumber=" + params.get("dialNumber"): "";
         qs += params.containsKey("duration")? "&duration=" + params.get("duration"): "";
         qs += getCheckSumParameterForQuery(APICALL_CREATE, qs);
