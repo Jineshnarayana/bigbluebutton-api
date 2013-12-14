@@ -77,7 +77,7 @@
           <branch>refs/heads/mvn-repo</branch>                       <!-- remote branch name -->
           <includes><include>**/*</include></includes>
           <repositoryName>bigbluebutton-api</repositoryName>         <!-- github repo name -->
-          <repositoryOwner>blindsidenetworks</repositoryOwner>    	         <!-- github username  -->
+          <repositoryOwner>blindsidenetworks</repositoryOwner>    	 <!-- github username  -->
         </configuration>
         <executions>
           <!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
